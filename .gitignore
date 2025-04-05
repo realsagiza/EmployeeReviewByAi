@@ -1,1 +1,6 @@
+.env
+__pycache__/
+*.pyc
 db/mongo-data/
+backend/app/.env
+.DS_Store
