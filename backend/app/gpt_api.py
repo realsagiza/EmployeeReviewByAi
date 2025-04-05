@@ -57,11 +57,11 @@ def monday_response():
         chat_sessions[session_id]['last_access'] = current_time  # อัปเดตเวลาเข้าถึงล่าสุด
 
     # เพิ่ม user input เข้าไปใน history
-    chat_sessions[session_id]['history'].append({"role": "user", "content": user_input})
-
-    # ตรวจสอบจำนวนข้อความใน history
-    if len(chat_sessions[session_id]['history']) > MAX_HISTORY_SIZE:
-        chat_sessions[session_id]['history'].pop(0)  # ลบข้อความเก่าที่สุด
+    if len(chat_sessions[session_id]['history']) < MAX_HISTORY_SIZE:
+        chat_sessions[session_id]['history'].append({"role": "user", "content": user_input})
+    else:
+        # เขียนทับข้อความเก่าที่สุด
+        chat_sessions[session_id]['history'][0] = {"role": "user", "content": user_input}
 
     try:
         # เรียก GPT-4o-mini พร้อม history
@@ -74,7 +74,11 @@ def monday_response():
 
         reply = response['choices'][0]['message']['content']
         # บันทึกคำตอบไว้ใน history ด้วย
-        chat_sessions[session_id]['history'].append({"role": "assistant", "content": reply})
+        if len(chat_sessions[session_id]['history']) < MAX_HISTORY_SIZE:
+            chat_sessions[session_id]['history'].append({"role": "assistant", "content": reply})
+        else:
+            # เขียนทับคำตอบเก่าที่สุด
+            chat_sessions[session_id]['history'][1] = {"role": "assistant", "content": reply}
 
         return jsonify({"reply": reply})
 
